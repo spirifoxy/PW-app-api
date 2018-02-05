@@ -20,6 +20,7 @@ class UserAccount
     ];
 
     /**
+     * @var int
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -27,27 +28,44 @@ class UserAccount
     private $id;
 
     /**
+     * @var User
      * @ORM\OneToOne(targetEntity="App\Entity\User", inversedBy="userAccount")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
 
     /**
+     * @var Transaction[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="accountFrom")
+     */
+    private $transactionsFrom;
+
+    /**
+     * @var Transaction[]
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="accountTo")
+     */
+    private $transactionsTo;
+
+    /**
+     * @var float
      * @ORM\Column(type="decimal", scale=2)
      */
     private $balance;
 
     /**
+     * @var int
      * @ORM\Column(type="smallint", options={"default": 0})
      */
     private $status = 0;
 
     /**
+     * @var \DateTime
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
+     * @var \DateTime
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
@@ -62,7 +80,7 @@ class UserAccount
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getId()
     {
@@ -70,7 +88,7 @@ class UserAccount
     }
 
     /**
-     * @return mixed
+     * @return User
      */
     public function getUser()
     {
@@ -78,7 +96,7 @@ class UserAccount
     }
 
     /**
-     * @param mixed $user
+     * @param User $user
      */
     public function setUser($user)
     {
@@ -86,7 +104,39 @@ class UserAccount
     }
 
     /**
-     * @return mixed
+     * @return Transaction[]
+     */
+    public function getTransactionsFrom()
+    {
+        return $this->transactionsFrom;
+    }
+
+    /**
+     * @param Transaction[] $transactionsFrom
+     */
+    public function setTransactionsFrom($transactionsFrom)
+    {
+        $this->transactionsFrom = $transactionsFrom;
+    }
+
+    /**
+     * @return Transaction[]
+     */
+    public function getTransactionsTo()
+    {
+        return $this->transactionsTo;
+    }
+
+    /**
+     * @param Transaction[] $transactionsTo
+     */
+    public function setTransactionsTo($transactionsTo)
+    {
+        $this->transactionsTo = $transactionsTo;
+    }
+
+    /**
+     * @return float
      */
     public function getBalance()
     {
@@ -94,7 +144,7 @@ class UserAccount
     }
 
     /**
-     * @param mixed $balance
+     * @param float $balance
      */
     public function setBalance($balance)
     {
@@ -102,7 +152,7 @@ class UserAccount
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getStatus()
     {
@@ -110,7 +160,7 @@ class UserAccount
     }
 
     /**
-     * @param mixed $status
+     * @param int $status
      */
     public function setStatus($status)
     {
@@ -118,7 +168,7 @@ class UserAccount
     }
 
     /**
-     * @return mixed
+     * @return \DateTime
      */
     public function getCreatedAt()
     {
@@ -126,7 +176,7 @@ class UserAccount
     }
 
     /**
-     * @param mixed $createdAt
+     * @param \DateTime $createdAt
      */
     public function setCreatedAt($createdAt)
     {
@@ -134,7 +184,7 @@ class UserAccount
     }
 
     /**
-     * @return mixed
+     * @return \DateTime
      */
     public function getUpdatedAt()
     {
@@ -142,7 +192,7 @@ class UserAccount
     }
 
     /**
-     * @param mixed $updatedAt
+     * @param \DateTime $updatedAt
      */
     public function setUpdatedAt($updatedAt)
     {

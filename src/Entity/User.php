@@ -7,6 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
+ *
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User implements UserInterface
@@ -21,7 +22,7 @@ class User implements UserInterface
 
     /**
      * @var UserAccount
-     * @ORM\OneToOne(targetEntity="App\Entity\UserAccount", mappedBy="user")
+     * @ORM\OneToOne(targetEntity="App\Entity\UserAccount", mappedBy="user", cascade={"persist"})
      */
     private $userAccount;
 
@@ -36,22 +37,30 @@ class User implements UserInterface
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
      * @Assert\NotBlank()
-     * @Assert\Email()
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true
+     * )
      */
-    private $email;
+    private $username;
 
-    /**
-     * @var string
-     * @Assert\NotBlank()
-     * @Assert\Length(max=4096)
-     */
-    private $plainPassword;
 
     /**
      * @var string
      * @ORM\Column(type="string", length=64)
      */
     private $password;
+
+    /**
+     * User constructor.
+     */
+    public function __construct()
+    {
+        $account = new UserAccount();
+        $account->setStatus(UserAccount::STATUS_ACTIVE);
+        $account->setUser($this);
+        $this->userAccount = $account;
+    }
 
     /**
      * @return int
@@ -96,33 +105,17 @@ class User implements UserInterface
     /**
      * @return string
      */
-    public function getEmail()
+    public function getUsername()
     {
-        return $this->email;
+        return $this->username;
     }
 
     /**
-     * @param string $email
+     * @param string $username
      */
-    public function setEmail($email)
+    public function setUsername($username)
     {
-        $this->email = $email;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPlainPassword()
-    {
-        return $this->plainPassword;
-    }
-
-    /**
-     * @param string $plainPassword
-     */
-    public function setPlainPassword($plainPassword)
-    {
-        $this->plainPassword = $plainPassword;
+        $this->username = $username;
     }
 
     /**
@@ -140,7 +133,6 @@ class User implements UserInterface
     {
         $this->password = $password;
     }
-
 
     /**
      * Returns the roles granted to the user.
@@ -164,21 +156,10 @@ class User implements UserInterface
     }
 
     /**
-     * Returns the username used to authenticate the user.
-     *
-     * @return string The username
-     */
-    public function getUsername()
-    {
-        return $this->email;
-    }
-
-    /**
      * Removes sensitive data from the user.
      *
      */
     public function eraseCredentials()
     {
-        $this->plainPassword = '';
     }
 }

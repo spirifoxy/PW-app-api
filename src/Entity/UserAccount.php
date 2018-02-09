@@ -2,8 +2,10 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
+use Exception;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserAccountRepository")
@@ -13,6 +15,8 @@ class UserAccount
 {
     const STATUS_ACTIVE = 0;
     const STATUS_BANNED = 1;
+
+    const INITIAL_BALANCE_VALUE = 500;
 
     private static $statuses = [
         self::STATUS_ACTIVE => 'Active',
@@ -36,21 +40,15 @@ class UserAccount
 
     /**
      * @var Transaction[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="accountFrom")
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="account", cascade={"persist"})
      */
-    private $transactionsFrom;
-
-    /**
-     * @var Transaction[]
-     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="accountTo")
-     */
-    private $transactionsTo;
+    private $transactions;
 
     /**
      * @var float
-     * @ORM\Column(type="decimal", scale=2)
+     * @ORM\Column(type="decimal", scale=2, options={"default": 0})
      */
-    private $balance;
+    private $balance = 0;
 
     /**
      * @var int
@@ -69,6 +67,15 @@ class UserAccount
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;
+
+    /**
+     * UserAccount constructor.
+     */
+    public function __construct()
+    {
+        $this->transactions = new ArrayCollection();
+        $this->initializeBalance();
+    }
 
 
     /**
@@ -106,33 +113,9 @@ class UserAccount
     /**
      * @return Transaction[]
      */
-    public function getTransactionsFrom()
+    public function getTransactions()
     {
-        return $this->transactionsFrom;
-    }
-
-    /**
-     * @param Transaction[] $transactionsFrom
-     */
-    public function setTransactionsFrom($transactionsFrom)
-    {
-        $this->transactionsFrom = $transactionsFrom;
-    }
-
-    /**
-     * @return Transaction[]
-     */
-    public function getTransactionsTo()
-    {
-        return $this->transactionsTo;
-    }
-
-    /**
-     * @param Transaction[] $transactionsTo
-     */
-    public function setTransactionsTo($transactionsTo)
-    {
-        $this->transactionsTo = $transactionsTo;
+        return $this->transactions;
     }
 
     /**
@@ -141,14 +124,6 @@ class UserAccount
     public function getBalance()
     {
         return $this->balance;
-    }
-
-    /**
-     * @param float $balance
-     */
-    public function setBalance($balance)
-    {
-        $this->balance = $balance;
     }
 
     /**
@@ -176,14 +151,6 @@ class UserAccount
     }
 
     /**
-     * @param \DateTime $createdAt
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    /**
      * @return \DateTime
      */
     public function getUpdatedAt()
@@ -192,18 +159,12 @@ class UserAccount
     }
 
     /**
-     * @param \DateTime $updatedAt
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-    /**
      * @ORM\PrePersist
      */
     public function onPrePersist() {
-        $this->createdAt = new \DateTime();
+        $date = new \DateTime();
+        $this->createdAt = $date;
+        $this->updatedAt = $date;
     }
 
     /**
@@ -212,4 +173,33 @@ class UserAccount
     public function onPreUpdate() {
         $this->updatedAt = new \DateTime();
     }
+
+    private function initializeBalance() {
+        $this->addTransaction(self::INITIAL_BALANCE_VALUE);
+    }
+
+    public function addTransaction($amount, $operation = null)
+    {
+        $this->assertTransactionAllowed($amount);
+
+        $transaction = new Transaction($this, $amount);
+        if ($operation) {
+            $transaction->setOperation($operation);
+        }
+
+        $this->transactions[] = $transaction;
+        $this->balance += $amount;
+        return $transaction;
+    }
+
+    private function assertTransactionAllowed($amount)
+    {
+        if ($this->getStatus() == self::STATUS_BANNED) {
+            throw new Exception("You are not allowed to perform any operations");
+        }
+        if ($this->getBalance() + $amount < 0) {
+            throw new Exception("You don't have enough PW to do that");
+        }
+    }
+
 }

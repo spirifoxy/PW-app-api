@@ -18,18 +18,18 @@ class Transaction
     private $id;
 
     /**
-     * @var UserAccount
-     * @ORM\ManyToOne(targetEntity="App\Entity\UserAccount", inversedBy="transactionsFrom")
-     * @ORM\JoinColumn(name="account_from_id", referencedColumnName="id")
+     * @var Operation
+     * @ORM\ManyToOne(targetEntity="App\Entity\Operation", inversedBy="transactionsFrom")
+     * @ORM\JoinColumn(name="operation_id", referencedColumnName="id"))
      */
-    private $accountFrom;
+    private $operation;
 
     /**
      * @var UserAccount
-     * @ORM\ManyToOne(targetEntity="App\Entity\UserAccount", inversedBy="transactionsTo")
-     * @ORM\JoinColumn(name="account_to_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="App\Entity\UserAccount", inversedBy="transactionsFrom")
+     * @ORM\JoinColumn(name="account_id", referencedColumnName="id",  nullable=false))
      */
-    private $accountTo;
+    private $account;
 
     /**
      * @var float
@@ -38,16 +38,15 @@ class Transaction
     private $amount;
 
     /**
-     * \DateTime
-     * @ORM\Column(type="datetime")
+     * Transaction constructor.
+     * @param UserAccount $account
+     * @param float $amount
      */
-    private $createdAt;
-
-    /**
-     * \DateTime
-     * @ORM\Column(type="datetime")
-     */
-    private $updatedAt;
+    public function __construct($account, $amount)
+    {
+        $this->account = $account;
+        $this->amount = $amount;
+    }
 
     /**
      * @return int
@@ -60,33 +59,33 @@ class Transaction
     /**
      * @return UserAccount
      */
-    public function getAccountFrom(): UserAccount
+    public function getAccount(): UserAccount
     {
-        return $this->accountFrom;
+        return $this->account;
     }
 
     /**
-     * @param UserAccount $accountFrom
+     * @param UserAccount $account
      */
-    public function setAccountFrom(UserAccount $accountFrom)
+    public function setAccount(UserAccount $account)
     {
-        $this->accountFrom = $accountFrom;
+        $this->account = $account;
     }
 
     /**
-     * @return UserAccount
+     * @return Operation
      */
-    public function getAccountTo(): UserAccount
+    public function getOperation(): Operation
     {
-        return $this->accountTo;
+        return $this->operation;
     }
 
     /**
-     * @param UserAccount $accountTo
+     * @param Operation $operation
      */
-    public function setAccountTo(UserAccount $accountTo)
+    public function setOperation(Operation $operation)
     {
-        $this->accountTo = $accountTo;
+        $this->operation = $operation;
     }
 
     /**
@@ -103,51 +102,5 @@ class Transaction
     public function setAmount($amount)
     {
         $this->amount = $amount;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getCreatedAt()
-    {
-        return $this->createdAt;
-    }
-
-    /**
-     * @param \DateTime $createdAt
-     */
-    public function setCreatedAt($createdAt)
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
-    /**
-     * @param \DateTime $updatedAt
-     */
-    public function setUpdatedAt($updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
-    }
-
-    /**
-     * @ORM\PrePersist
-     */
-    public function onPrePersist() {
-        $this->createdAt = new \DateTime();
-    }
-
-    /**
-     * @ORM\PreUpdate
-     */
-    public function onPreUpdate() {
-        $this->updatedAt = new \DateTime();
     }
 }

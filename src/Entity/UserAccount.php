@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Exception;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserAccountRepository")
@@ -18,6 +19,9 @@ class UserAccount
 
     const INITIAL_BALANCE_VALUE = 500;
 
+    /**
+     * @Exclude
+     */
     private static $statuses = [
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_BANNED => 'Banned',

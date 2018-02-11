@@ -3,8 +3,16 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+
+// * @ExclusionPolicy("all")
+
 
 /**
  *
@@ -27,16 +35,30 @@ class User implements UserInterface
     private $userAccount;
 
     /**
+     * @Groups({"users_select_list"})
+     *
      * @var string
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message = "Name is empty.")
+     * @Assert\Regex(pattern = "/^[a-zA-Z ]+$/",
+     *     match=true,
+     *     message="Numbers or special characters are not allowed."
+     * )
+     * @Assert\Length(
+     *      min = 3,
+     *      max = 255,
+     *      minMessage = "Your name must be at least {{ limit }} characters long",
+     *      maxMessage = "Your name cannot be longer than {{ limit }} characters"
+     * )
      */
     private $name;
 
     /**
+     * @Groups({"users_select_list"})
+     *
      * @var string
      * @ORM\Column(type="string", length=255, unique=true)
-     * @Assert\NotBlank()
+     * @Assert\NotBlank(message = "Email is empty.")
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     checkMX = true
@@ -46,6 +68,19 @@ class User implements UserInterface
 
 
     /**
+     * @Assert\NotBlank(message = "Password is empty.",)
+     * @Assert\Length(
+     *      min = 6,
+     *      max = 64,
+     *      minMessage = "Your password must be at least {{ limit }} characters long",
+     *      maxMessage = "Your password cannot be longer than {{ limit }} characters"
+     * )
+     */
+    private $plainPassword;
+
+    /**
+     * @Exclude
+     *
      * @var string
      * @ORM\Column(type="string", length=64)
      */
@@ -119,6 +154,14 @@ class User implements UserInterface
     }
 
     /**
+     * @param string $password
+     */
+    public function setPlainPassword($password)
+    {
+        $this->plainPassword = $password;
+    }
+
+    /**
      * @return string
      */
     public function getPassword()
@@ -161,5 +204,6 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
+        $this->plainPassword = '';
     }
 }

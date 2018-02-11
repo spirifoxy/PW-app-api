@@ -21,6 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User implements UserInterface
 {
     /**
+     * @Groups({"users_select_list"})
+     *
      * @var int
      * @ORM\Id
      * @ORM\GeneratedValue

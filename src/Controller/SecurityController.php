@@ -31,13 +31,6 @@ class SecurityController extends FOSRestController
     }
 
     /**
-     * @Route("/login_check", name="login")
-     */
-    public function login(Request $request)
-    {
-    }
-
-    /**
      * @Route("/api/register", name="register")
      * @Method("POST")
      */

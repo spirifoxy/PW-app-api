@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation\Exclude;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserAccountRepository")
- * @HasLifecycleCallbacks
+ * @ORM\EntityListeners({"App\EventListener\UserAccountListener"})
  */
 class UserAccount
 {
@@ -78,7 +78,6 @@ class UserAccount
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
-        $this->initializeBalance();
     }
 
 
@@ -163,47 +162,29 @@ class UserAccount
     }
 
     /**
-     * @ORM\PrePersist
+     * @param \DateTime $createdAt
      */
-    public function onPrePersist() {
-        $date = new \DateTime();
-        $this->createdAt = $date;
-        $this->updatedAt = $date;
+    public function setCreatedAt(\DateTime $createdAt)
+    {
+        $this->createdAt = $createdAt;
     }
 
     /**
-     * @ORM\PreUpdate
+     * @param \DateTime $updatedAt
      */
-    public function onPreUpdate() {
-        $this->updatedAt = new \DateTime();
-    }
-
-    private function initializeBalance() {
-        $this->addTransaction(self::INITIAL_BALANCE_VALUE);
-    }
-
-    public function addTransaction($amount, $operation = null)
+    public function setUpdatedAt(\DateTime $updatedAt)
     {
-        $this->assertTransactionAllowed($amount);
+        $this->updatedAt = $updatedAt;
+    }
 
-        $transaction = new Transaction($this, $amount);
-        if ($operation) {
-            $transaction->setOperation($operation);
-        }
 
+    /**
+     * @param Transaction $transaction
+     */
+    public function addTransaction($amount, $operation) {
+
+        $transaction = new Transaction($this, $amount, $operation);
         $this->transactions[] = $transaction;
-        $this->balance += $amount;
-        return $transaction;
+        $this->balance += $transaction->getAmount();
     }
-
-    private function assertTransactionAllowed($amount)
-    {
-        if ($this->getStatus() == self::STATUS_BANNED) {
-            throw new Exception("You are not allowed to perform any operations");
-        }
-        if ($this->getBalance() + $amount < 0) {
-            throw new Exception("You don't have enough PW to do that");
-        }
-    }
-
 }

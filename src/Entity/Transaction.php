@@ -19,14 +19,14 @@ class Transaction
 
     /**
      * @var Operation
-     * @ORM\ManyToOne(targetEntity="App\Entity\Operation", inversedBy="transactionsFrom")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Operation", inversedBy="transactions", cascade={"persist"})
      * @ORM\JoinColumn(name="operation_id", referencedColumnName="id"))
      */
     private $operation;
 
     /**
      * @var UserAccount
-     * @ORM\ManyToOne(targetEntity="App\Entity\UserAccount", inversedBy="transactionsFrom")
+     * @ORM\ManyToOne(targetEntity="App\Entity\UserAccount", inversedBy="transactions")
      * @ORM\JoinColumn(name="account_id", referencedColumnName="id",  nullable=false))
      */
     private $account;
@@ -42,10 +42,11 @@ class Transaction
      * @param UserAccount $account
      * @param float $amount
      */
-    public function __construct($account, $amount)
+    public function __construct($account, $amount, $operation)
     {
         $this->account = $account;
         $this->amount = $amount;
+        $this->operation = $operation;
     }
 
     /**

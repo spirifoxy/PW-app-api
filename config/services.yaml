@@ -31,3 +31,8 @@ services:
 
     Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\AuthenticationSuccessHandler:
         autowire: true
+
+    user_account_listener:
+        class: App\EventListener\UserAccountListener
+        tags:
+            - { name: doctrine.orm.entity_listener, user_service: UserService}

@@ -74,11 +74,4 @@ class SecurityController extends FOSRestController
     {
     }
 
-    /**
-     * @Route("/api", name="api")
-     */
-    public function api()
-    {
-        return new Response(sprintf('Logged in as %s', $this->getUser()->getUsername()));
-    }
 }

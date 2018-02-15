@@ -34,4 +34,14 @@ class UserRepository extends ServiceEntityRepository implements UserLoaderInterf
     public function isUserExists($username) {
         return (bool) $this->loadUserByUsername($username);
     }
+
+    public function findAllExcept($userId) {
+        return $this->createQueryBuilder('u')
+            ->where('u.id != :id')
+            ->setParameter('id', $userId)
+            ->orderBy('u.name', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\UserAccount;
 use App\Service\TransactionService;
-use Doctrine\Common\Collections\Criteria;
 use FOS\RestBundle\Context\Context;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -22,6 +22,37 @@ class UserController extends FOSRestController
     {
         $this->tokenStorage = $tokenStorage;
     }
+
+    /**
+     * @Route("/api/user/current", name="get_current_user")
+     * @Rest\View()
+     */
+    public function getCurrentUser()
+    {
+        /** @var User $currentUser */
+        $currentUser = $this->tokenStorage->getToken()->getUser();
+        $view = $this->view($currentUser, 200);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * @Route("/api/user/balance", name="get_current_balance")
+     * @Rest\View()
+     */
+    public function getCurrentBalance()
+    {
+        /** @var User $currentUser */
+        $currentUser = $this->tokenStorage->getToken()->getUser();
+        $view = $this->view($currentUser->getUserAccount()->getBalance(), 200);
+
+        if ($currentUser->getUserAccount()->getStatus() == $currentUser->getUserAccount()::STATUS_BANNED) {
+            throw new \Exception('You have benn banned');
+        }
+
+        return $this->handleView($view);
+    }
+
 
     /**
      * @Route("/api/user/transactions", name="get_user_transactions")
@@ -69,11 +100,16 @@ class UserController extends FOSRestController
     public function sendMoneyAction(Request $request, TransactionService $transactionService)
     {
         $userToId = $request->get('userId');
-        $amount = $request->get('amount');
+        $amount = floatval($request->get('amount'));
 
         $userFrom = $this->tokenStorage->getToken()->getUser();
         $userTo = $this->getDoctrine()->getRepository('App:User')->findOneBy(array('id' => $userToId));
 
+        /** @var UserAccount $account */
+        $account = $userTo->getUserAccount();
+        if ($account->getStatus() == $account::STATUS_BANNED) {
+            throw new \Exception('This user was banned');
+        }
         if ($amount < 1) {
             throw new \Exception('The transfer amount is incorrect');
         }
@@ -90,7 +126,8 @@ class UserController extends FOSRestController
             throw $e;
         }
 
-        return true;
+        $view = $this->view(true, 200);
+        return $this->handleView($view);
 
     }
 }

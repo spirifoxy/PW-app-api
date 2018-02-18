@@ -104,4 +104,19 @@ class Transaction
     {
         $this->amount = $amount;
     }
+
+
+    /**
+     * @return string
+     */
+    public function getUsername() {
+        return $this->getAccount()->getUser()->getUsername();
+    }
+
+    /**
+     * @return string
+     */
+    public function getCreatedAt() {
+        return $this->getOperation()->getCreatedAt()->format('Y-m-d H:i:s');
+    }
 }

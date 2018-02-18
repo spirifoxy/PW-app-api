@@ -52,7 +52,7 @@ class TransactionService
         }
     }
 
-    public function sendMoney(User $userFrom, User $userTo, int $amount) {
+    public function sendMoney(User $userFrom, User $userTo, float $amount) {
 
         $this->em->beginTransaction();
         try{
@@ -62,6 +62,8 @@ class TransactionService
             $credit = $this->createTransaction($userTo, $amount, $operation);
 
             $this->em->persist($operation);
+            $this->em->merge($userFrom->getUserAccount());
+            $this->em->merge($userTo->getUserAccount());
             $this->em->merge($debit);
             $this->em->merge($credit);
             $this->em->flush();

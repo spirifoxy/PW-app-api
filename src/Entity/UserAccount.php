@@ -4,8 +4,6 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
-use Exception;
 use JMS\Serializer\Annotation\Exclude;
 
 /**
@@ -73,7 +71,7 @@ class UserAccount
     private $updatedAt;
 
     /**
-     * UserAccount constructor.
+     * UserAccount.php constructor.
      */
     public function __construct()
     {
@@ -130,6 +128,14 @@ class UserAccount
     }
 
     /**
+     * @param float $balance
+     */
+    public function setBalance($balance)
+    {
+        $this->balance = $balance;
+    }
+
+    /**
      * @return int
      */
     public function getStatus()
@@ -177,6 +183,9 @@ class UserAccount
         $this->updatedAt = $updatedAt;
     }
 
+    public function __toString() {
+        return strval($this->id);
+    }
 
     /**
      * @param Transaction $transaction

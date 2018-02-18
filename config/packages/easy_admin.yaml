@@ -1,0 +1,33 @@
+easy_admin:
+    site_name: 'Parrot Wings'
+    disabled_actions: ['new', 'delete']
+    entities:
+        Transaction:
+            class: App\Entity\Transaction
+            list:
+                fields:
+                    - id
+                    - amount
+                    - { property: 'username', type: 'email' }
+                    - createdAt
+            form:
+                fields:
+                    - amount
+                    - { property: 'operation', type: 'App\Form\OperationType' }
+
+        User:
+            class: App\Entity\User
+            list:
+                fields:
+                    - id
+                    - name
+                    - { property: 'username', type: 'email' }
+                    - balance
+                    - statusCaption
+                    - createdAt
+
+            form:
+                fields:
+                    - name
+                    - username
+                    - { property: 'userAccount', type: 'App\Form\UserAccountType' }

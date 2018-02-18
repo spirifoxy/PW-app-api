@@ -57,9 +57,21 @@ class Operation
     }
 
     /**
+     * @param \DateTime $createdAt
+     */
+    public function setCreatedAt(\DateTime $createdAt)
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    /**
      * @ORM\PrePersist
      */
     public function onPrePersist() {
         $this->createdAt = new \DateTime();
+    }
+
+    public function __toString() {
+        return 'ID: ' . $this->getId() . '; Date: ' . $this->getCreatedAt()->format('Y-m-d H:i:s');
     }
 }

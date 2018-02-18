@@ -3,15 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Exclude;
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
-
-// * @ExclusionPolicy("all")
 
 
 /**
@@ -70,7 +65,8 @@ class User implements UserInterface
 
 
     /**
-     * @Assert\NotBlank(message = "Password is empty.",)
+     * @Exclude
+     *
      * @Assert\Length(
      *      min = 6,
      *      max = 64,
@@ -207,5 +203,27 @@ class User implements UserInterface
     public function eraseCredentials()
     {
         $this->plainPassword = '';
+    }
+
+    /**
+     * @return float
+     */
+    public function getBalance() {
+        return $this->getUserAccount()->getBalance();
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatusCaption() {
+        $account = $this->getUserAccount();
+        return $account::getStatuses()[$account->getStatus()];
+    }
+
+    /**
+     * @return string
+     */
+    public function getCreatedAt() {
+        return $this->getUserAccount()->getCreatedAt()->format('Y-m-d H:i:s');
     }
 }

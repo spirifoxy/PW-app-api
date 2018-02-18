@@ -28,16 +28,12 @@ class TransactionService
         $this->assertTransactionAllowed($user, $amount);
 
         $account = $user->getUserAccount();
-//        $transaction = new Transaction($account, $amount);
         if (!$operation) {
             $operation = new Operation();
         }
-//        $transaction->setOperation($operation);
 
-//        $account->addTransaction($transaction);
-        $account->addTransaction($amount, $operation);
-
-//        return $transaction;
+        $transaction = $account->addTransaction($amount, $operation);
+        return $transaction;
     }
 
     /**
@@ -62,10 +58,12 @@ class TransactionService
         try{
             $operation = new Operation();
 
-            $this->createTransaction($userFrom,$amount * -1, $operation);
-            $this->createTransaction($userTo, $amount, $operation);
+            $debit = $this->createTransaction($userFrom,$amount * -1, $operation);
+            $credit = $this->createTransaction($userTo, $amount, $operation);
 
             $this->em->persist($operation);
+            $this->em->merge($debit);
+            $this->em->merge($credit);
             $this->em->flush();
             $this->em->commit();
         } catch (\Exception $e) {

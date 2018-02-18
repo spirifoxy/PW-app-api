@@ -186,5 +186,6 @@ class UserAccount
         $transaction = new Transaction($this, $amount, $operation);
         $this->transactions[] = $transaction;
         $this->balance += $transaction->getAmount();
+        return $transaction;
     }
 }
